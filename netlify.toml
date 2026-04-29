@@ -1,0 +1,10 @@
+# netlify.toml
+# This config proxies all requests to your Render Flask backend.
+# After deploying to Render, replace YOUR_RENDER_URL below with your actual URL
+# e.g. https://career-health-system.onrender.com
+
+[[redirects]]
+  from = "/*"
+  to = "https://YOUR_RENDER_URL/:splat"
+  status = 200
+  force = true
