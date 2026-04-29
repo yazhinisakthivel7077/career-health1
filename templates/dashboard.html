@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard – CareerHealth.AI</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="navbar-brand" href="/dashboard">⚡ <span>CareerHealth</span>.AI</a>
+  <div class="navbar-links">
+    <span style="font-size:.85rem;color:var(--muted);">👤 {{ username }}</span>
+    <a class="btn-nav" href="/logout">Logout</a>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+
+  <!-- HEADER -->
+  <section style="padding:48px 0 32px;">
+    <div style="margin-bottom:6px;font-family:'Source Code Pro',monospace;font-size:.78rem;color:var(--accent);letter-spacing:.12em;">DASHBOARD</div>
+    <h1 class="display" style="font-size:2.4rem;margin-bottom:10px;">
+      Welcome back, <span style="color:var(--accent);">{{ username }}</span>
+    </h1>
+    <p style="color:var(--muted);">Select an AI module below to analyze your career health. Each module runs independently.</p>
+  </section>
+
+  <!-- STATUS BAR -->
+  <div class="card" style="padding:20px 28px;margin-bottom:32px;display:flex;gap:32px;flex-wrap:wrap;align-items:center;">
+    <div>
+      <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">ML Engine</div>
+      <div style="color:var(--success);font-weight:600;font-size:.9rem;">● Random Forest Active</div>
+    </div>
+    <div>
+      <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">XAI</div>
+      <div style="color:var(--accent2);font-weight:600;font-size:.9rem;">● SHAP Enabled</div>
+    </div>
+    <div>
+      <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Models Ready</div>
+      <div style="color:var(--warn);font-weight:600;font-size:.9rem;">4 / 4 Loaded</div>
+    </div>
+    <div style="margin-left:auto;">
+      <span style="font-family:'Source Code Pro',monospace;font-size:.78rem;color:var(--muted);">Training samples: <span style="color:var(--text);">500</span></span>
+    </div>
+  </div>
+
+  <!-- MODULE CARDS -->
+  <h2 class="display" style="font-size:1.2rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:20px;">AI Modules</h2>
+
+  <div class="dash-grid">
+
+    <a href="/burnout" class="dash-card">
+      <div class="dash-icon" style="background:rgba(239,71,111,.15);font-size:1.8rem;">🔥</div>
+      <div class="dash-card-title">Burnout Prediction</div>
+      <div class="dash-card-desc">Classify your burnout risk level using stress, hours & sleep data</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px;">
+        <span class="badge badge-high">High</span>
+        <span class="badge badge-medium">Medium</span>
+        <span class="badge badge-low">Low</span>
+      </div>
+    </a>
+
+    <a href="/productivity" class="dash-card">
+      <div class="dash-icon" style="background:rgba(108,99,255,.15);font-size:1.8rem;">📈</div>
+      <div class="dash-card-title">Productivity Analysis</div>
+      <div class="dash-card-desc">Score your productivity 0–100% with RF Regressor + Classifier</div>
+      <div style="margin-top:4px;">
+        <span class="badge badge-ready">Score + Level</span>
+      </div>
+    </a>
+
+    <a href="/career" class="dash-card">
+      <div class="dash-icon" style="background:rgba(0,212,170,.15);font-size:1.8rem;">🚀</div>
+      <div class="dash-card-title">Career Readiness</div>
+      <div class="dash-card-desc">Assess if your skills & experience match market readiness</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px;">
+        <span class="badge badge-ready">Ready</span>
+        <span class="badge badge-moderate">Moderate</span>
+      </div>
+    </a>
+
+    <a href="/suggestions" class="dash-card">
+      <div class="dash-icon" style="background:rgba(255,209,102,.12);font-size:1.8rem;">💡</div>
+      <div class="dash-card-title">AI Suggestions</div>
+      <div class="dash-card-desc">Personalized recommendations based on your combined results</div>
+      <div style="margin-top:4px;">
+        <span class="badge badge-medium">Smart Advice</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- TECH STACK -->
+  <section style="padding:48px 0;">
+    <h2 class="display" style="font-size:1.1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:20px;">Technology Stack</h2>
+    <div class="grid-3">
+      <div class="card" style="padding:20px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--accent);">Machine Learning</div>
+        <div style="font-size:.85rem;color:var(--muted);line-height:1.9;">
+          🌲 Random Forest Classifier<br/>
+          📉 Random Forest Regressor<br/>
+          🔬 scikit-learn<br/>
+          📊 Synthetic Dataset (500 rows)
+        </div>
+      </div>
+      <div class="card" style="padding:20px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--accent2);">Explainable AI</div>
+        <div style="font-size:.85rem;color:var(--muted);line-height:1.9;">
+          🧠 SHAP Permutation Values<br/>
+          📊 Waterfall Charts<br/>
+          🎯 Feature Importance<br/>
+          📈 Matplotlib + Seaborn
+        </div>
+      </div>
+      <div class="card" style="padding:20px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--warn);">Full Stack</div>
+        <div style="font-size:.85rem;color:var(--muted);line-height:1.9;">
+          🐍 Python / Flask<br/>
+          🌐 HTML + CSS + JS<br/>
+          🔗 REST API Endpoints<br/>
+          💾 Session Storage
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>

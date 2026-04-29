@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Productivity Analysis – CareerHealth.AI</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="navbar-brand" href="/dashboard">⚡ <span>CareerHealth</span>.AI</a>
+  <div class="navbar-links">
+    <a class="nav-link" href="/dashboard">← Dashboard</a>
+    <a class="nav-link" href="/burnout">Burnout</a>
+    <a class="nav-link" href="/career">Career</a>
+    <a class="nav-link" href="/suggestions">Suggestions</a>
+    <a class="btn-nav" href="/logout">Logout</a>
+  </div>
+</nav>
+
+<div class="page-wrapper" style="padding-top:40px;padding-bottom:60px;">
+
+  <div class="section-header" style="margin-bottom:32px;">
+    <div class="section-icon purple">📈</div>
+    <div>
+      <div class="section-heading display">Productivity Analysis</div>
+      <div class="section-sub">RF Classifier + RF Regressor · Productivity Score (0–100%) + Level</div>
+    </div>
+  </div>
+
+  <div class="predict-layout">
+
+    <!-- INPUT -->
+    <div>
+      <div style="display:flex;gap:10px;margin-bottom:20px;">
+        <button id="btn-manual" class="btn btn-primary" onclick="setMode('manual')">✏️ Manual Input</button>
+        <button id="btn-auto"   class="btn btn-secondary" onclick="autoPredict()">⚡ Auto Predict</button>
+      </div>
+
+      <div class="card">
+        <div style="font-family:'Source Code Pro',monospace;font-size:.75rem;color:var(--muted);margin-bottom:18px;text-transform:uppercase;letter-spacing:.1em;">Input Features</div>
+
+        <div class="form-group">
+          <label class="form-label">Stress Level</label>
+          <div class="range-row">
+            <input type="range" id="stress_level" min="1" max="10" value="4" step="1" style="flex:1;"/>
+            <span class="range-val" id="stress_level_val">4</span>
+            <span style="font-size:.78rem;color:var(--muted);">/ 10</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Working Hours / Day</label>
+          <div class="range-row">
+            <input type="range" id="working_hours" min="1" max="16" value="8" step="0.5" style="flex:1;"/>
+            <span class="range-val" id="working_hours_val">8</span>
+            <span style="font-size:.78rem;color:var(--muted);">hrs</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Sleep Hours / Day</label>
+          <div class="range-row">
+            <input type="range" id="sleep_hours" min="2" max="10" value="7" step="0.5" style="flex:1;"/>
+            <span class="range-val" id="sleep_hours_val">7</span>
+            <span style="font-size:.78rem;color:var(--muted);">hrs</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Work-Life Balance</label>
+          <div class="range-row">
+            <input type="range" id="work_life_balance" min="1" max="10" value="6" step="1" style="flex:1;"/>
+            <span class="range-val" id="work_life_balance_val">6</span>
+            <span style="font-size:.78rem;color:var(--muted);">/ 10</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Experience (Years)</label>
+          <div class="range-row">
+            <input type="range" id="experience_years" min="0" max="20" value="3" step="1" style="flex:1;"/>
+            <span class="range-val" id="experience_years_val">3</span>
+            <span style="font-size:.78rem;color:var(--muted);">yrs</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Number of Skills</label>
+          <div class="range-row">
+            <input type="range" id="skills_count" min="1" max="25" value="8" step="1" style="flex:1;"/>
+            <span class="range-val" id="skills_count_val">8</span>
+            <span style="font-size:.78rem;color:var(--muted);">skills</span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-full" style="margin-top:8px;" onclick="runPredict(false)">
+          📊 Analyze Productivity
+        </button>
+      </div>
+
+      <div class="card" style="margin-top:16px;padding:16px 20px;">
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.8;">
+          <strong style="color:var(--text);">Dual model output:</strong><br/>
+          A <strong>Regressor</strong> outputs a 0–100% productivity score.
+          A <strong>Classifier</strong> labels it Low / Medium / High.
+          Both use the same 6 input features.
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div>
+      <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+        <div style="color:var(--muted);font-size:.9rem;">Calculating productivity score…</div>
+      </div>
+
+      <div id="placeholder" class="card" style="text-align:center;padding:60px 28px;color:var(--muted);">
+        <div style="font-size:3rem;margin-bottom:16px;">📊</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;margin-bottom:8px;">Awaiting Analysis</div>
+        <div style="font-size:.85rem;">Submit your data or tap <strong>Auto Predict</strong> to see your productivity score.</div>
+      </div>
+
+      <div id="result-area" style="display:none;">
+
+        <div class="result-panel">
+          <div class="result-title">Productivity Level</div>
+          <div class="result-value" id="result-label">–</div>
+
+          <!-- SCORE GAUGE -->
+          <div style="margin-top:16px;">
+            <div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-bottom:6px;">
+              <span>Productivity Score</span>
+              <span class="conf-text"><span id="result-score">–</span>%</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" id="score-bar" style="width:0%;"></div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;font-size:.85rem;color:var(--muted);" id="result-advice"></div>
+        </div>
+
+        <div class="card" style="margin-top:16px;padding:18px 22px;">
+          <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;">Input Used</div>
+          <div id="input-echo" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.85rem;"></div>
+        </div>
+
+        <div class="card" style="margin-top:16px;padding:18px 22px;">
+          <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">Feature Importance + Input Profile</div>
+          <img id="chart-img" class="chart-img" src="" alt="Chart"/>
+        </div>
+
+        <div class="shap-box" style="margin-top:16px;">
+          <div class="shap-title">🧠 SHAP Explainable AI – Feature Impact</div>
+          <div style="padding:16px;" id="shap-content"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/main.js"></script>
+<script>
+const FIELDS = ['stress_level','working_hours','sleep_hours','work_life_balance','experience_years','skills_count'];
+
+document.querySelectorAll('input[type=range]').forEach(s => {
+  const out = document.getElementById(s.id + '_val');
+  if (out) { out.textContent = s.value; s.addEventListener('input', () => out.textContent = s.value); }
+});
+
+function setMode(m) {
+  document.getElementById('btn-manual').className = m === 'manual' ? 'btn btn-primary' : 'btn btn-secondary';
+  document.getElementById('btn-auto').className   = m === 'auto'   ? 'btn btn-primary' : 'btn btn-secondary';
+}
+
+function autoPredict() {
+  setMode('auto');
+  const ranges = { stress_level:[1,10,0], working_hours:[4,14,1], sleep_hours:[4,9,1],
+                   work_life_balance:[1,10,0], experience_years:[0,15,0], skills_count:[1,20,0] };
+  Object.entries(ranges).forEach(([id,[mn,mx,dec]]) => {
+    const el = document.getElementById(id);
+    const val = dec ? (Math.random()*(mx-mn)+mn).toFixed(dec) : Math.floor(Math.random()*(mx-mn+1)+mn);
+    el.value = val;
+    const out = document.getElementById(id+'_val');
+    if (out) out.textContent = val;
+  });
+  runPredict(true);
+}
+
+async function runPredict(auto) {
+  const payload = auto ? {auto:true} : {auto:false, ...collectFormData(FIELDS)};
+  document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('result-area').style.display = 'none';
+  showLoading('loading');
+  try {
+    const data = await apiPost('/predict-productivity', payload);
+    hideLoading('loading');
+    renderResult(data);
+  } catch(e) { hideLoading('loading'); alert('Error: ' + e.message); }
+}
+
+function renderResult(d) {
+  const label = d.prediction;
+  const score = d.score;
+
+  document.getElementById('result-label').textContent = label;
+  document.getElementById('result-label').className = 'result-value result-' + label.toLowerCase();
+  document.getElementById('result-score').textContent = score;
+  document.getElementById('score-bar').style.width = score + '%';
+
+  const advice = { High: '🌟 Excellent productivity! You\'re operating at peak efficiency.',
+                   Medium: '⚡ Good productivity. Small habit changes can push you higher.',
+                   Low: '⚠️ Low productivity detected. Try structured time management techniques.' };
+  document.getElementById('result-advice').textContent = advice[label] || '';
+
+  const labels = { stress_level:'Stress Level', working_hours:'Working Hrs', sleep_hours:'Sleep Hrs',
+                   work_life_balance:'Work-Life Bal.', experience_years:'Experience', skills_count:'Skills' };
+  document.getElementById('input-echo').innerHTML = Object.entries(d.inputs).map(([k,v]) =>
+    `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+       <span style="color:var(--muted);">${labels[k]||k}</span>
+       <span style="color:var(--accent2);font-weight:600;">${v}</span></div>`).join('');
+
+  document.getElementById('chart-img').src = d.chart;
+  document.getElementById('shap-content').innerHTML = d.shap;
+  document.getElementById('result-area').style.display = 'block';
+  document.getElementById('result-area').scrollIntoView({behavior:'smooth', block:'start'});
+}
+</script>
+</body>
+</html>

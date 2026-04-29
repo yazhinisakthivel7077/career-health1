@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login / Register – CareerHealth.AI</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  <style>
+    .tab-bar { display:flex; background:var(--surface); border-radius:10px; padding:4px; margin-bottom:28px; gap:4px; }
+    .tab-btn { flex:1; padding:9px 0; border:none; border-radius:8px; background:transparent; color:var(--muted);
+               font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:600; cursor:pointer; transition:all .2s; letter-spacing:.04em; }
+    .tab-btn.active { background:var(--accent); color:#fff; box-shadow:0 4px 14px rgba(108,99,255,.35); }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+    .strength-bar-wrap { height:4px; background:var(--border); border-radius:4px; margin-top:6px; overflow:hidden; }
+    .strength-bar { height:100%; width:0%; border-radius:4px; transition:width .3s, background .3s; }
+    .strength-label { font-size:.75rem; color:var(--muted); margin-top:4px; min-height:1.1em; }
+  </style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-card" style="max-width:430px;">
+
+    <div class="login-logo" style="margin-bottom:8px;">⚡ <span style="color:var(--accent);">CareerHealth</span>.AI</div>
+    <p style="text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:18px;">AI-powered burnout, productivity &amp; career analysis</p>
+
+    <div style="display:flex;justify-content:center;margin-bottom:20px;">
+      <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;
+             background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.18);
+             border-radius:999px;font-size:.78rem;color:var(--accent2);">
+        🌐 Open access — anyone can create an account
+      </span>
+    </div>
+
+    {% if error %}
+    <div class="error-msg">⚠️ {{ error }}</div>
+    {% endif %}
+
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-login-btn"    onclick="switchTab('login')">Sign In</button>
+      <button class="tab-btn"        id="tab-register-btn" onclick="switchTab('register')">Create Account</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="tab-panel active" id="tab-login">
+      <form method="POST" action="/login">
+        <input type="hidden" name="action" value="login"/>
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input class="form-control" type="text" name="username" placeholder="Your username" autocomplete="username" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div style="position:relative;">
+            <input class="form-control" type="password" id="login-pass" name="password"
+                   placeholder="Your password" autocomplete="current-password" required style="padding-right:44px;"/>
+            <button type="button" onclick="togglePwd('login-pass',this)"
+                    style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;">👁</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Sign In →</button>
+      </form>
+      <p style="text-align:center;font-size:.82rem;color:var(--muted);margin-top:18px;">
+        No account? <a href="#" onclick="switchTab('register')" style="color:var(--accent);text-decoration:none;">Create one free →</a>
+      </p>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="tab-panel" id="tab-register">
+      <form method="POST" action="/login" onsubmit="return validateRegister()">
+        <input type="hidden" name="action" value="register"/>
+        <div class="form-group">
+          <label class="form-label">Choose a Username</label>
+          <input class="form-control" type="text" id="reg-user" name="username"
+                 placeholder="e.g. john_doe" autocomplete="username" minlength="3" maxlength="30" required oninput="checkUsername(this)"/>
+          <div id="username-hint" style="font-size:.75rem;margin-top:4px;min-height:1em;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Create Password</label>
+          <div style="position:relative;">
+            <input class="form-control" type="password" id="reg-pass" name="password"
+                   placeholder="Min 4 characters" autocomplete="new-password" minlength="4" required
+                   oninput="checkStrength(this.value)" style="padding-right:44px;"/>
+            <button type="button" onclick="togglePwd('reg-pass',this)"
+                    style="position:absolute;right:12px;top:30%;transform:translateY(-30%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;">👁</button>
+          </div>
+          <div class="strength-bar-wrap"><div class="strength-bar" id="strength-bar"></div></div>
+          <div class="strength-label" id="strength-label"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input class="form-control" type="password" id="reg-confirm"
+                 placeholder="Repeat password" autocomplete="new-password" minlength="4" required/>
+          <div id="match-hint" style="font-size:.75rem;margin-top:4px;min-height:1em;"></div>
+        </div>
+        <div id="reg-error" class="error-msg" style="display:none;"></div>
+        <button type="submit" class="btn btn-accent2 btn-full" style="color:#080b14;font-weight:700;">
+          Create Account &amp; Start →
+        </button>
+      </form>
+      <p style="text-align:center;font-size:.82rem;color:var(--muted);margin-top:18px;">
+        Have an account? <a href="#" onclick="switchTab('login')" style="color:var(--accent);text-decoration:none;">Sign in →</a>
+      </p>
+    </div>
+
+    <div class="divider" style="margin:20px 0 14px;"></div>
+    <p style="font-size:.75rem;color:var(--muted);text-align:center;line-height:1.7;">
+      🔒 No email required · No data shared externally<br/>
+      Accounts active for this server session
+    </p>
+    <div style="text-align:center;margin-top:14px;">
+      <a href="/" style="color:var(--muted);font-size:.82rem;text-decoration:none;">← Back to Home</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(tab) {
+  ['login','register'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('tab-'+t+'-btn').classList.toggle('active', t===tab);
+  });
+}
+function togglePwd(id, btn) {
+  const el = document.getElementById(id);
+  el.type = el.type==='password' ? 'text' : 'password';
+  btn.textContent = el.type==='password' ? '👁' : '🙈';
+}
+function checkStrength(val) {
+  const bar=document.getElementById('strength-bar'), lbl=document.getElementById('strength-label');
+  if (!val) { bar.style.width='0%'; lbl.textContent=''; return; }
+  let s=0;
+  if (val.length>=6) s++; if (val.length>=10) s++;
+  if (/[A-Z]/.test(val)) s++; if (/[0-9]/.test(val)) s++; if (/[^A-Za-z0-9]/.test(val)) s++;
+  const L=[{w:'20%',bg:'#ef476f',t:'Very weak'},{w:'40%',bg:'#ffd166',t:'Weak'},
+           {w:'60%',bg:'#ffd166',t:'Fair'},{w:'80%',bg:'#06d6a0',t:'Strong'},{w:'100%',bg:'#00d4aa',t:'Very strong'}];
+  const l=L[Math.min(s,4)];
+  bar.style.width=l.w; bar.style.background=l.bg; lbl.textContent=l.t; lbl.style.color=l.bg;
+}
+function checkUsername(el) {
+  const h=document.getElementById('username-hint'), v=el.value.trim();
+  if (!v) { h.textContent=''; return; }
+  if (v.length<3) { h.textContent='⚠️ At least 3 chars.'; h.style.color='#ef476f'; return; }
+  if (/[^a-zA-Z0-9_\-\.]/.test(v)) { h.textContent='⚠️ Only letters, numbers, _ . -'; h.style.color='#ef476f'; return; }
+  h.textContent='✅ Looks good!'; h.style.color='#06d6a0';
+}
+function validateRegister() {
+  const pass=document.getElementById('reg-pass').value;
+  const conf=document.getElementById('reg-confirm').value;
+  const user=document.getElementById('reg-user').value.trim();
+  const err=document.getElementById('reg-error');
+  const mh=document.getElementById('match-hint');
+  if (user.length<3) { err.style.display='block'; err.textContent='Username must be at least 3 characters.'; return false; }
+  if (pass!==conf) { mh.textContent='❌ Passwords do not match.'; mh.style.color='#ef476f'; err.style.display='block'; err.textContent='Passwords do not match.'; return false; }
+  mh.textContent='✅ Match!'; mh.style.color='#06d6a0'; err.style.display='none'; return true;
+}
+document.getElementById('reg-confirm').addEventListener('input', function() {
+  const h=document.getElementById('match-hint'), p=document.getElementById('reg-pass').value;
+  if (!this.value) { h.textContent=''; return; }
+  h.textContent = this.value===p ? '✅ Passwords match!' : '❌ Does not match.';
+  h.style.color  = this.value===p ? '#06d6a0' : '#ef476f';
+});
+</script>
+</body>
+</html>
